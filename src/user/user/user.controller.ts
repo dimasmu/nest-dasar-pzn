@@ -4,6 +4,7 @@ import {
   Header,
   HttpCode,
   HttpRedirectResponse,
+  Inject,
   Param,
   Post,
   Query,
@@ -13,9 +14,16 @@ import {
 } from "@nestjs/common";
 import { Request, response, Response } from "express";
 import { request } from "http";
+import { UserService } from "./user.service";
 
 @Controller("/api/users")
 export class UserController {
+  constructor(private service: UserService) {}
+
+  // inject depedencies bisa lewat constructor atau @inject()
+  // @Inject()
+  // private service: UserService;
+
   // cara lama ketika memakai HTTP Express
   // @Get("/hello")
   // sayHello(@Req() request: Request): string {
@@ -53,8 +61,9 @@ export class UserController {
   }
 
   @Get("/hello")
-  async sayHello(@Query("first_name") firstName: String, @Query("last_name") lastName: String): Promise<string> {
-    return `Hello ${firstName} ${lastName}`;
+  async sayHello(@Query("first_name") firstName: string, @Query("last_name") lastName: string): Promise<string> {
+    // return `Hello ${firstName} ${lastName}`;
+    return this.service.sayHello(firstName, lastName);
   }
 
   // cara lama ketika memakai HTTP Express
@@ -87,5 +96,13 @@ export class UserController {
   @Get("/get-cookie")
   getCookie(@Req() request: Request): string {
     return request.cookies["name"];
+  }
+
+  @Get("view-hello")
+  viewHello(@Query("name") name: string, @Res() response: Response) {
+    response.render("index.html", {
+      title: "Template Engine",
+      name: name,
+    });
   }
 }
