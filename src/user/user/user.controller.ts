@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Header,
@@ -13,12 +14,13 @@ import {
   Res,
 } from "@nestjs/common";
 import { Request, response, Response } from "express";
-import { request } from "http";
 import { UserService } from "./user.service";
 import { Connection } from "../connection/connection";
 import { MailService } from "../mail/mail.service";
 import { UserRepository } from "../user-repository/user-repository";
 import { MemberService } from "../member/member.service";
+import { CreateUserDTO } from "./createUserDTO.dto";
+import { User } from "@prisma/client";
 
 @Controller("/api/users")
 export class UserController {
@@ -33,7 +35,7 @@ export class UserController {
 
   @Get("/connection")
   async getConnection(): Promise<string> {
-    this.userRepository.save();
+    // this.userRepository.save();
     this.mailservice.send();
     this.emailService.send();
     console.info(this.memberService.getConnectionName());
@@ -100,6 +102,13 @@ export class UserController {
   @Post()
   post(): string {
     return "";
+  }
+
+  @Post("/create")
+  async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
+    let firstName = createUserDTO.first_name;
+    let lastName = createUserDTO.last_name;
+    return this.userRepository.save(firstName, lastName);
   }
 
   // @Get("/sample")
